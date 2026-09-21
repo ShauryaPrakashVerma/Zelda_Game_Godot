@@ -1,5 +1,8 @@
 extends CharacterBody3D
 
+@onready var anim_pla: AnimationPlayer = $mesh/AnimationPlayer
+
+
 # type safety
 #@export var speed : float= 5.0 
 
@@ -43,9 +46,22 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	turn_to(direction)
 	
+	var current_speed := velocity.length()
+	
+	const RUN_SPEED := 3.5
+	const BLEND_SPEED := 0.2
+	
+	if current_speed > RUN_SPEED:
+		anim_pla.play("freehand_run", BLEND_SPEED)
+	elif current_speed > 0:
+		anim_pla.play("freehand_walk", BLEND_SPEED, lerp(0.5, 1.25, current_speed/RUN_SPEED))
+	else:
+		anim_pla.play("freehand_idle")
+	
+	
 	
 func turn_to(direction:Vector3) -> void:
 	if direction.length() > 0:
-		var yaw:= atan2(-direction.x, -direction.y)
+		var yaw:= atan2(-direction.x, -direction.z)
 		yaw = lerp_angle(rotation.y, yaw, 0.25)
 		rotation.y = yaw
